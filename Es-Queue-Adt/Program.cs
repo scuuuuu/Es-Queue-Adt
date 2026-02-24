@@ -8,77 +8,66 @@ namespace Es_Queue_Adt
         {
             CQueue<string> coda = new CQueue<string>();
             CPila<char> pila = new CPila<char>();
+            Console.WriteLine("Inserisci l'espressione");
+            string espressione = Console.ReadLine();
+            string numero = "";
 
-            string espressione = "35+17*(40-9)-7";
-            int i = 0;
-
-            while (i < espressione.Length)
+            foreach (char c in espressione)
             {
-                char c = espressione[i];
-
-                // 1️⃣ NUMERO
-                if (char.IsDigit(c))
+                if (char.IsDigit(c))//se è cifra
                 {
-                    string numero = "";
-                    while (i < espressione.Length && char.IsDigit(espressione[i]))
-                    {
-                        numero += espressione[i];
-                        i++;
-                    }
-                    coda.Enqueue(numero);
+                    numero += c;
                     continue;
                 }
-
-                // 2️⃣ PARENTESI APERTA
+                else if (numero != "")//se è un numero completo
+                {
+                    coda.Enqueue(numero);//inserisco il numero nella coda
+                    numero = "";
+                }
                 if (c == '(')
                 {
                     pila.Push(c);
                 }
-
-                // 3️⃣ PARENTESI CHIUSA
-                else if (c == ')')
+                else if (c == ')')//se è una parentesi chiusa, svuoto la pila fino a trovare la parentesi aperta
                 {
                     while (!pila.IsEmpty() && pila.Peek() != '(')
                     {
-                        coda.Enqueue(pila.Pop().ToString());
+                        coda.Enqueue(pila.Pop().ToString());//inserisco l'operatore nella coda
                     }
-                    pila.Pop(); // elimina '('
+                    pila.Pop(); //rimuovo la parentesi aperta
                 }
-
-                // 4️⃣ OPERATORI
                 else if (c == '+' || c == '-' || c == '*' || c == '/')
                 {
-                    while (!pila.IsEmpty() &&
-                          (pila.Peek() == '+' || pila.Peek() == '-' ||
-                           pila.Peek() == '*' || pila.Peek() == '/') &&
-                           Precedenza(pila.Peek()) >= Precedenza(c))
+                    if (c == '+' || c == '-')//se bassa orecedenza
                     {
-                        coda.Enqueue(pila.Pop().ToString());
+                        while (!pila.IsEmpty() && pila.Peek() != '(')//svuoto la pila fino a trovare una parentesi aperta
+                        {
+                            coda.Enqueue(pila.Pop().ToString());//inserisco l'operatore nella coda
+                        }
                     }
-                    pila.Push(c);
+                    else
+                    {
+                        while (!pila.IsEmpty() && (pila.Peek() == '*' || pila.Peek() == '/'))//se alta precedenza
+                        {
+                            coda.Enqueue(pila.Pop().ToString());//inserisco l'operatore nella coda
+                        }
+                    }
+                    pila.Push(c);//inserisco l'operatore nella pila
                 }
-
-                i++;
             }
-
-            // 5️⃣ SVUOTA PILA
+            if (numero != "")//se è un numero completo alla fine dell'espressione
+            {
+                coda.Enqueue(numero);//inserisco il numero nella coda
+            }
             while (!pila.IsEmpty())
             {
-                coda.Enqueue(pila.Pop().ToString());
+                coda.Enqueue(pila.Pop().ToString());//inserisco gli operatori rimanenti nella coda
             }
-
             Console.WriteLine("Espressione postfissa:");
             while (!coda.IsEmpty())
             {
                 Console.Write(coda.Dequeue() + " ");
             }
-        }
-
-        static int Precedenza(char op)
-        {
-            if (op == '+' || op == '-') return 1;
-            if (op == '*' || op == '/') return 2;
-            return 0;
         }
     }
 }
