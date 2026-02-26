@@ -64,10 +64,46 @@ namespace Es_Queue_Adt
                 coda.Enqueue(pila.Pop().ToString());//inserisco gli operatori rimanenti nella coda
             }
             Console.WriteLine("Espressione postfissa:");
+            List<string> postfissa = new List<string>();
+
             while (!coda.IsEmpty())
             {
-                Console.Write(coda.Dequeue() + " ");
+                string espressionePost = coda.Dequeue();
+                Console.Write(espressionePost + " ");
+                postfissa.Add(espressionePost);
             }
+            CPila<int> calcolo = new CPila<int>();
+            foreach (string token in postfissa)
+            {
+                if (int.TryParse(token, out int n))
+                {
+                    calcolo.Push(n);
+                }
+                else
+                {
+                    int b = calcolo.Pop();
+                    int a = calcolo.Pop();
+                    int risultato = 0;
+                    if (token == "+")
+                    {
+                        risultato = a + b;
+                    }
+                    else if (token == "-")
+                    {
+                        risultato = a - b;
+                    }
+                    else if (token == "*") 
+                    {
+                        risultato = a * b;
+                    }
+                    else if (token == "/") 
+                    {
+                        risultato = a / b;
+                    }   
+                    calcolo.Push(risultato);
+                }
+            }
+            Console.WriteLine("\nRisultato = " + calcolo.Pop());
         }
     }
 }
